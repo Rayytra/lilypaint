@@ -87,10 +87,21 @@ impl eframe::App for DrawingApp {
 
             if response.dragged() {
                 if let Some(pointer_pos) = response.interact_pointer_pos() {
-                    println!("Pointer Position: {:?}", pointer_pos);
+                    if let Some(last_pos) = self.strokes.last().copied().flatten() {
+                        let distance = (pointer_pos.distance(last_pos) / 2.0).max(1.0);
+                        let num_steps = distance.ceil() as usize;
+                        for i in 1..=num_steps {
+                            let t = i as f32 / num_steps as f32;
+                            let interpolated = egui::pos2(
+                                last_pos.x + (pointer_pos.x - last_pos.x) * t,
+                                last_pos.y + (pointer_pos.y - last_pos.y) * t,
+                            );
+                            self.strokes.push(Some(interpolated));
+                        }
+                    }
                     self.strokes.push(Some(pointer_pos));
                 }
-            } else if response.drag_released() {
+            } else if response.drag_stopped() {
                 self.strokes.push(None); // Separate strokes
                 self.history.push(self.strokes.clone()); // Save to histowy
             }
@@ -104,12 +115,8 @@ impl eframe::App for DrawingApp {
                 egui::StrokeKind::Middle,
             );
             
-            for stroke in self.strokes.windows(2) {
-                if let [Some(a), Some(b)] = stroke {
-                    painter.line_segment([
-                        *a, *b
-                    ], egui::Stroke::new(5.0, egui::Color32::BLACK));
-                }
+            for stroke in self.strokes.iter().flatten() {
+                painter.circle_filled(*stroke, 3.0, egui::Color32::BLACK); // Draw round brush strokes 
             }
 
             if ui.button("Save Drawing").clicked() {
