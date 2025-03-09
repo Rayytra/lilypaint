@@ -49,7 +49,11 @@ impl DrawingApp {
 impl eframe::App for DrawingApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.label("Draw on the canvas below:");
+            ui.horizontal(
+                |ui| ui.horizontal(
+                    |ui| ui.label("lilypaint")
+                ) 
+            );
             let available_size = ui.available_size();
             self.canvas_size = available_size;
             let response = ui.allocate_response(available_size, egui::Sense::drag());
