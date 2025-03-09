@@ -10,7 +10,7 @@ To build this project and try it urself, install `rustup`, clone this repo, open
 - [x] Simple drawing with line_segment (to be replaced with circle or image)
 - [x] Saving to file with button
 - [x] Clearing with "X" key
-- [ ] Undo with "Z" key
+- [x] Undo with "Z" key and redo with "Y" key
 - [ ] Basic tablet support
 - [ ] Save popup window
 - [ ] Changing brush to circle or image

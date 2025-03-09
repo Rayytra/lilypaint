@@ -12,6 +12,8 @@ struct DrawingApp {
     strokes: Vec<Option<egui::Pos2>>, // Use None to separate strokes
     canvas_size: egui::Vec2,
     input: Gilrs,
+    history: Vec<Vec<Option<egui::Pos2>>>, // Histowy of strokes
+    redo_stack: Vec<Vec<Option<egui::Pos2>>>, // Wedo stack
 }
 
 impl DrawingApp {
@@ -21,6 +23,8 @@ impl DrawingApp {
             strokes: Vec::new(),
             canvas_size: egui::vec2(1920 as f32, 1080 as f32),
             input,
+            history: Vec::new(),
+            redo_stack: Vec::new(),
         }
     }
 
@@ -61,8 +65,21 @@ impl eframe::App for DrawingApp {
 
             if ctx.input(|i| i.key_pressed(Key::Z)) {
                 println!("Undone");
+                if !self.history.is_empty() {
+                    let last_stroke = self.history.pop().unwrap(); // Wemove da wast stwoke fwom histowy
+                    self.redo_stack.push(last_stroke); // Save it to da wedo stack
+                    self.strokes = self.history.last().cloned().unwrap_or_default(); // Westowe pwevious state               
+                }
             }
 
+            if ctx.input(|i| i.key_pressed(Key::Y)) {
+                println!("Redone");
+                if !self.redo_stack.is_empty() {
+                    let last_undone_stroke = self.redo_stack.pop().unwrap(); // Wemove da wast stwoke fwom wedo stack
+                    self.history.push(last_undone_stroke.clone()); // Add it back to da histowy
+                    self.strokes = last_undone_stroke; // Westowe da stwoke
+                }
+            }
 
             if response.dragged() {
                 if let Some(pointer_pos) = response.interact_pointer_pos() {
@@ -71,6 +88,7 @@ impl eframe::App for DrawingApp {
                 }
             } else if response.drag_released() {
                 self.strokes.push(None); // Separate strokes
+                self.history.push(self.strokes.clone()); // Save to histowy
             }
             
             let painter = ui.painter();
