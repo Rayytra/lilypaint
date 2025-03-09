@@ -11,6 +11,6 @@ To build this project and try it urself, install `rustup`, clone this repo, open
 - [x] Saving to file with button
 - [x] Clearing with "X" key
 - [x] Undo with "Z" key and redo with "Y" key
+- [x] Changing brush to circle
 - [ ] Basic tablet support
 - [ ] Save popup window
-- [ ] Changing brush to circle or image
